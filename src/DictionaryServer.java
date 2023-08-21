@@ -1,18 +1,13 @@
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import org.json.*;
 
 public class DictionaryServer {
-    // Shared dictionary and lock for synchronization
-    private static final Lock dictionaryLock = new ReentrantLock();
     private static final File dictionaryFile = new File("src/dictionary.json");
-    private static final Dictionary dictionary = new Dictionary();
 
     public static void main(String[] args) {
-        final int PORT = 12345; // Choose a port number
+        final int PORT = 12345;
 
         try {
             ServerSocket serverSocket = new ServerSocket(PORT);
@@ -63,7 +58,7 @@ public class DictionaryServer {
             }
         }
 
-        private String processRequest(String request) {
+        private synchronized String processRequest(String request) {
             String[] tokens = request.split(" ", 2);
             if (tokens.length < 2) {
                 return "Invalid request format.";
@@ -73,8 +68,6 @@ public class DictionaryServer {
             String parameter = tokens[1];
 
             String response;
-            try {
-                dictionaryLock.lock(); // Acquire the lock before accessing the shared dictionary
                 switch (operation) {
                     case "SEARCH":
                         response = dictionary.search(parameter);
@@ -82,18 +75,16 @@ public class DictionaryServer {
                     case "ADD":
                         response = dictionary.add(parameter);
                         break;
-//                    case "REMOVE":
-//                        response = dictionary.remove(parameter);
-//                        break;
-//                    case "UPDATE":
-//                        response = dictionary.update(parameter);
-//                        break;
+                    case "REMOVE":
+                        response = dictionary.remove(parameter);
+                        break;
+                    case "UPDATE":
+                        response = dictionary.update(parameter);
+                        break;
                     default:
                         response = "Unknown operation.";
                 }
-            } finally {
-                dictionaryLock.unlock(); // Release the lock after accessing the shared dictionary
-            }
+
 
             return response;
         }
@@ -112,23 +103,17 @@ public class DictionaryServer {
             }
         }
 
-        public String search(String word) {
-            try {
-                dictionaryLock.lock();
-                if (dictionaryData.has(word)) {
-                    JSONArray meanings = dictionaryData.getJSONArray(word);
-                    return "Meaning of " + word + ": " + meanings.toString();
-                } else {
-                    return "Word not found.";
-                }
-            } finally {
-                dictionaryLock.unlock();
+        public synchronized String search(String word) {
+            if (dictionaryData.has(word)) {
+                JSONArray meanings = dictionaryData.getJSONArray(word);
+                return "Meaning of " + word + ": " + meanings.toString();
+            } else {
+                return "Word not found.";
             }
         }
 
-        public String add(String input) {
+        public synchronized String add(String input) {
             try {
-                dictionaryLock.lock();
                 String[] parts = input.split(" ", 2);
                 if (parts.length == 2) {
                     String word = parts[0];
@@ -145,12 +130,36 @@ public class DictionaryServer {
                 }
             } catch (JSONException e) {
                 return "Error: " + e.getMessage();
-            } finally {
-                dictionaryLock.unlock();
             }
         }
 
-        // ... (similar modifications for remove and update methods)
+        public synchronized String remove(String word) {
+            if (dictionaryData.has(word)) {
+                dictionaryData.remove(word);
+                saveDictionary();
+                return "Removed " + word + " successfully.";
+            } else {
+                return "Word not found.";
+            }
+        }
+
+        public synchronized String update(String input) {
+            String[] parts = input.split(" ", 2);
+            if (parts.length != 2) {
+                return "Invalid input format.";
+            }
+
+            String word = parts[0];
+            String[] newMeanings = parts[1].split(";");
+
+            if (dictionaryData.has(word)) {
+                dictionaryData.put(word, new JSONArray(newMeanings));
+                saveDictionary();
+                return "Updated " + word + " successfully.";
+            } else {
+                return "Word not found.";
+            }
+        }
 
         private void saveDictionary() {
             try (FileWriter writer = new FileWriter(dictionaryFile)) {
