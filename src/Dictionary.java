@@ -10,11 +10,14 @@ import java.nio.file.Files;
 public class Dictionary {
     private JSONObject dictionaryData;
 
-    private static final File dictionaryFile = new File("src/dictionary.json");
+    private  File dictionaryFile;
 
-    public Dictionary() {
+//    private static final File dictionaryFile = new File("src/dictionary.json");
+
+    public Dictionary(File dictionaryFile) {
         // Initialize the dictionary by reading from the JSON file
         try {
+            this.dictionaryFile = dictionaryFile;
             String fileContent = new String(Files.readAllBytes(dictionaryFile.toPath()));
             dictionaryData = new JSONObject(fileContent);
         } catch (IOException | JSONException e) {
@@ -81,7 +84,7 @@ public class Dictionary {
     }
 
     private void saveDictionary() {
-        try (FileWriter writer = new FileWriter(dictionaryFile)) {
+        try (FileWriter writer = new FileWriter(this.dictionaryFile)) {
             writer.write(dictionaryData.toString(4));
         } catch (IOException | JSONException e) {
             e.printStackTrace();
