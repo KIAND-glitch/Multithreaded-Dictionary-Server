@@ -1,9 +1,12 @@
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.*;
 import java.net.*;
 
 public class DictionaryServer {
+
 
     public static void main(String[] args) {
         if (args.length != 2) {
@@ -46,12 +49,37 @@ public class DictionaryServer {
                 e.printStackTrace();
                 return;
             }
+        } else {
+            try {
+                JSONObject json = readJsonFromFile(dictionaryFile);
+                if (json == null) {
+                    System.out.println("Invalid JSON format in dictionary file. Do you want to create a new one? (Y/N)");
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                    String response = reader.readLine().trim().toLowerCase();
+
+                    if (!response.equals("y")) {
+                        System.out.println("Exiting...");
+                        return;
+                    }
+
+                    writeJsonToFile(dictionaryFile, new JSONObject());
+                }
+            } catch (IOException e) {
+                System.out.println("An error occurred while reading the dictionary file.");
+                e.printStackTrace();
+                return;
+            }
         }
 
         Dictionary dictionary = new Dictionary(dictionaryFile);
 
+
         try {
             ServerSocket serverSocket = new ServerSocket(port);
+
+            // Get the local IP address
+            String ipAddress = InetAddress.getLocalHost().getHostAddress();
+            System.out.println("Starting server on IP address: " + ipAddress);
             System.out.println("Server is running and waiting for connections...");
 
             while (true) {
@@ -125,6 +153,15 @@ public class DictionaryServer {
                         response = "Unknown operation.";
                 }
             return response;
+        }
+    }
+
+    private static JSONObject readJsonFromFile(File file) throws IOException {
+        try (FileReader fileReader = new FileReader(file)) {
+            JSONTokener tokener = new JSONTokener(fileReader);
+            return new JSONObject(tokener);
+        } catch (JSONException e) {
+            return null;
         }
     }
 

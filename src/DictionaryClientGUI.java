@@ -1,17 +1,14 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.net.*;
+import java.awt.event.*;
+import java.io.IOException;
 
 public class DictionaryClientGUI {
     private JTextArea outputArea;
     private JTextField inputField;
-    private PrintWriter out;
-    private BufferedReader in;
+    private DictionaryClient client;
 
-    public DictionaryClientGUI() {
+    public DictionaryClientGUI(String serverIP, int serverPort) {
         JFrame frame = new JFrame("Dictionary Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 300);
@@ -33,30 +30,23 @@ public class DictionaryClientGUI {
 
         frame.setVisible(true);
 
-        // Connect to the server
-        final String SERVER_IP = "127.0.0.1"; // Change to server's IP address
-        final int SERVER_PORT = 12345; // Change to server's port number
-
         try {
-            Socket socket = new Socket(SERVER_IP, SERVER_PORT);
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            client = new DictionaryClient(serverIP, serverPort);
             startListening();
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Error connecting to the server.");
         }
     }
 
     private void startListening() {
         Thread thread = new Thread(() -> {
             try {
-                String response;
-                while ((response = in.readLine()) != null) {
-                    String finalResponse = response;
-                    SwingUtilities.invokeLater(() -> outputArea.append(finalResponse + "\n"));
+                while (true) {
+                    String response = client.receiveResponse();
+                    SwingUtilities.invokeLater(() -> outputArea.append(response + "\n"));
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                showError("Connection to server lost.");
             }
         });
         thread.start();
@@ -66,12 +56,30 @@ public class DictionaryClientGUI {
         @Override
         public void actionPerformed(ActionEvent e) {
             String userInput = inputField.getText();
-            out.println(userInput);
-            inputField.setText("");
+            if (!userInput.isEmpty()) {
+                client.sendRequest(userInput);
+                inputField.setText("");
+            }
         }
     }
 
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new DictionaryClientGUI());
+        SwingUtilities.invokeLater(() -> {
+            if (args.length != 2) {
+                System.err.println("Usage: java DictionaryClientGUI <serverIP> <serverPort>");
+            } else {
+                try {
+                    String serverIP = args[0];
+                    int serverPort = Integer.parseInt(args[1]);
+                    new DictionaryClientGUI(serverIP, serverPort);
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid port number.");
+                }
+            }
+        });
     }
 }
