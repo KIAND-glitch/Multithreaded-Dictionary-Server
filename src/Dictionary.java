@@ -25,6 +25,7 @@ public class Dictionary {
         }
     }
 
+
     public synchronized String search(String word) {
         if (dictionaryData.has(word)) {
             JSONArray meanings = dictionaryData.getJSONArray(word);

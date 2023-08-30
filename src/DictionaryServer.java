@@ -4,11 +4,70 @@ import org.json.JSONTokener;
 
 import java.io.*;
 import java.net.*;
+import java.io.IOException;
+import java.util.logging.*;
+
+
 
 public class DictionaryServer {
 
+    private volatile boolean isRunning = true; // 'volatile' keyword ensures proper visibility in multi-threading
+    private static DictionaryServerGUI gui;
+    private Dictionary dictionary;
 
-    public static void main(String[] args) {
+    private static final Logger logger = Logger.getLogger(DictionaryServer.class.getName());
+
+    static {
+        // Configure the logger
+        LogManager.getLogManager().reset(); // Reset the default configuration
+        logger.setLevel(Level.ALL); // Set the desired logging level
+
+        try {
+            FileHandler fileHandler = new FileHandler("server.log", true); // Create a log file named "server.log"
+            fileHandler.setLevel(Level.ALL); // Set the desired logging level for the file
+            logger.addHandler(fileHandler);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setLevel(Level.ALL); // Set the desired logging level for console output
+        logger.addHandler(consoleHandler);
+    }
+
+
+    public DictionaryServer(int port, String dictionaryFilePath, DictionaryServerGUI gui) throws IOException {
+        this.gui = gui;
+
+        File dictionaryFile = new File(dictionaryFilePath);
+        JSONObject json = readJsonFromFile(dictionaryFile);
+        dictionary = new Dictionary(dictionaryFile); // Initialize the dictionary with the File object
+
+
+        try {
+            ServerSocket serverSocket = new ServerSocket(port);
+
+            // Get the local IP address
+            String ipAddress = InetAddress.getLocalHost().getHostAddress();
+            logger.info("Starting server on IP address: " + ipAddress);
+
+            gui.logMessage("Starting server on IP address: " + ipAddress);
+            gui.logMessage("Server is running and waiting for connections...");
+
+            while (isRunning) {
+                Socket clientSocket = serverSocket.accept();
+                gui.logMessage("Client connected: " + clientSocket.getInetAddress());
+
+                // Create a new thread to handle the client's requests
+                Thread clientThread = new Thread(new ClientHandler(clientSocket, dictionary));
+                clientThread.start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
         if (args.length != 2) {
             System.out.println("Usage: java DictionaryServer <port> <dictionary_file>");
             return;
@@ -71,56 +130,46 @@ public class DictionaryServer {
             }
         }
 
-        Dictionary dictionary = new Dictionary(dictionaryFile);
-
-
-        try {
-            ServerSocket serverSocket = new ServerSocket(port);
-
-            // Get the local IP address
-            String ipAddress = InetAddress.getLocalHost().getHostAddress();
-            System.out.println("Starting server on IP address: " + ipAddress);
-            System.out.println("Server is running and waiting for connections...");
-
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket.getInetAddress());
-
-                // Create a new thread to handle the client's requests
-                Thread clientThread = new Thread(new ClientHandler(clientSocket, dictionary));
-                clientThread.start();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        DictionaryServerGUI gui = new DictionaryServerGUI(); // Create the GUI instance
+        new DictionaryServer(port, dictionaryFilePath, gui);
     }
+
+    public void stopServer() {
+        isRunning = false;
+        gui.logMessage("Server stopping...");
+    }
+
 
     static class ClientHandler implements Runnable {
         private Socket clientSocket;
         private Dictionary dictionary;
 
-        public ClientHandler(Socket clientSocket, Dictionary dictionary) {
+        private static final Logger logger = Logger.getLogger(ClientHandler.class.getName());
+        private final PrintWriter out;
+
+        public ClientHandler(Socket clientSocket, Dictionary dictionary) throws IOException {
             this.clientSocket = clientSocket;
             this.dictionary = dictionary;
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
         }
         @Override
         public void run() {
-            try {
-                // Set up input and output streams for the client socket
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+                logger.info("Client connected: " + clientSocket.getInetAddress());
 
-                // Read client's requests and respond accordingly
                 String request;
                 while ((request = in.readLine()) != null) {
                     String response = processRequest(request);
                     out.println(response);
-                }
 
-                // Close the streams and socket when done
-                in.close();
-                out.close();
-                clientSocket.close();
+                    // Log client requests and responses
+                    logger.info("Client: " + clientSocket.getInetAddress() + " - Request: " + request);
+                    logger.info("Client: " + clientSocket.getInetAddress() + " - Response: " + response);
+
+                    // Also send client logs to the GUI
+                    gui.logMessage("Client " + clientSocket.getInetAddress() + ": " + request);
+                    gui.logMessage("Server response to " + clientSocket.getInetAddress() + ": " + response);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -136,22 +185,22 @@ public class DictionaryServer {
             String parameter = tokens[1];
 
             String response;
-                switch (operation) {
-                    case "SEARCH":
-                        response = dictionary.search(parameter);
-                        break;
-                    case "ADD":
-                        response = dictionary.add(parameter);
-                        break;
-                    case "REMOVE":
-                        response = dictionary.remove(parameter);
-                        break;
-                    case "UPDATE":
-                        response = dictionary.update(parameter);
-                        break;
-                    default:
-                        response = "Unknown operation.";
-                }
+            switch (operation) {
+                case "SEARCH":
+                    response = dictionary.search(parameter);
+                    break;
+                case "ADD":
+                    response = dictionary.add(parameter);
+                    break;
+                case "REMOVE":
+                    response = dictionary.remove(parameter);
+                    break;
+                case "UPDATE":
+                    response = dictionary.update(parameter);
+                    break;
+                default:
+                    response = "Unknown operation.";
+            }
             return response;
         }
     }

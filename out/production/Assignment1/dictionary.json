@@ -1,8 +1,12 @@
 {
     "banana": ["a fruit"],
     "orange": ["a citrus fruit"],
-    "apple": ["a fruit"],
+    "apple": [
+        "fruit",
+        " a tech company"
+    ],
     "java": ["amazing programming language"],
+    "nike": ["a brand"],
     "friend": ["i need more"],
     "kian": ["genius"]
 }

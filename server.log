@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2023-08-30T12:36:51.899387Z</date>
+  <millis>1693399011899</millis>
+  <nanos>387000</nanos>
+  <sequence>0</sequence>
+  <logger>DictionaryServer</logger>
+  <level>INFO</level>
+  <class>DictionaryServer</class>
+  <method>&lt;init&gt;</method>
+  <thread>1</thread>
+  <message>Starting server on IP address: 192.168.0.100</message>
+</record>
+</log>

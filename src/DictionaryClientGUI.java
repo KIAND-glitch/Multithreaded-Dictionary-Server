@@ -8,34 +8,44 @@ public class DictionaryClientGUI {
     private JTextField inputField;
     private DictionaryClient client;
 
-    public DictionaryClientGUI(String serverIP, int serverPort) {
+
+    public DictionaryClientGUI(DictionaryClient client) {
+        this.client = client;
+
         JFrame frame = new JFrame("Dictionary Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 300);
+        frame.setSize(800, 600);
 
-        outputArea = new JTextArea(10, 30);
+        outputArea = new JTextArea(15, 30);
         outputArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(outputArea);
 
         inputField = new JTextField(30);
-        JButton sendButton = new JButton("Send");
-        sendButton.addActionListener(new SendButtonListener());
+
+        // Add buttons for different functionalities
+        JButton addButton = new JButton("Add");
+        JButton updateButton = new JButton("Update");
+        JButton deleteButton = new JButton("Delete");
+        JButton searchButton = new JButton("Search");
+
+        // Add ActionListener to each button
+        addButton.addActionListener(new DictionaryButtonListener("ADD"));
+        updateButton.addActionListener(new DictionaryButtonListener("UPDATE"));
+        deleteButton.addActionListener(new DictionaryButtonListener("DELETE"));
+        searchButton.addActionListener(new DictionaryButtonListener("SEARCH"));
 
         JPanel inputPanel = new JPanel();
         inputPanel.add(inputField);
-        inputPanel.add(sendButton);
+        inputPanel.add(addButton);
+        inputPanel.add(updateButton);
+        inputPanel.add(deleteButton);
+        inputPanel.add(searchButton);
 
         frame.add(scrollPane, BorderLayout.CENTER);
         frame.add(inputPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
-
-        try {
-            client = new DictionaryClient(serverIP, serverPort);
-            startListening();
-        } catch (IOException e) {
-            showError("Error connecting to the server.");
-        }
+        startListening();  // Call startListening() to listen for server responses
     }
 
     private void startListening() {
@@ -52,12 +62,18 @@ public class DictionaryClientGUI {
         thread.start();
     }
 
-    private class SendButtonListener implements ActionListener {
+    private class DictionaryButtonListener implements ActionListener {
+        private String operation;
+
+        public DictionaryButtonListener(String operation) {
+            this.operation = operation;
+        }
+
         @Override
         public void actionPerformed(ActionEvent e) {
             String userInput = inputField.getText();
             if (!userInput.isEmpty()) {
-                client.sendRequest(userInput);
+                client.sendRequest(operation + " " + userInput);
                 inputField.setText("");
             }
         }
@@ -67,19 +83,4 @@ public class DictionaryClientGUI {
         JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            if (args.length != 2) {
-                System.err.println("Usage: java DictionaryClientGUI <serverIP> <serverPort>");
-            } else {
-                try {
-                    String serverIP = args[0];
-                    int serverPort = Integer.parseInt(args[1]);
-                    new DictionaryClientGUI(serverIP, serverPort);
-                } catch (NumberFormatException e) {
-                    System.err.println("Invalid port number.");
-                }
-            }
-        });
-    }
 }
