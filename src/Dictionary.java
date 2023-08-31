@@ -1,3 +1,8 @@
+/*
+ * Kian Dsouza - 1142463
+ * Dictionary
+ * */
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

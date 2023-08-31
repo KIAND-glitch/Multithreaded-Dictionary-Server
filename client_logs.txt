@@ -1,0 +1,54 @@
+Aug 31, 2023 9:27:41 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Aug 31, 2023 9:27:48 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH Kian
+Aug 31, 2023 9:27:48 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Meaning of Kian: ["king"]
+Aug 31, 2023 9:28:05 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH Kian
+Aug 31, 2023 9:28:05 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Word not found.
+Aug 31, 2023 9:28:12 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH kian
+Aug 31, 2023 9:28:12 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Meaning of kian: ["genius"]
+Aug 31, 2023 9:28:30 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: ADD Kian king
+Aug 31, 2023 9:28:30 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Added Kian successfully.
+Aug 31, 2023 10:08:12 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Aug 31, 2023 10:08:20 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH apple
+Aug 31, 2023 10:08:20 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Meaning of apple: ["fruit"," a tech company"]
+Aug 31, 2023 10:13:19 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH Kian
+Aug 31, 2023 10:13:33 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Aug 31, 2023 10:13:39 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH apple
+Aug 31, 2023 10:13:39 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Meaning of apple: ["fruit"," a tech company"]
+Aug 31, 2023 10:18:08 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Aug 31, 2023 10:18:32 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH apple
+Aug 31, 2023 10:18:32 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Meaning of apple: ["fruit"," a tech company"]
+Aug 31, 2023 10:18:54 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH kian
+Aug 31, 2023 10:18:54 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Meaning of kian: ["genius"]
+Aug 31, 2023 10:22:43 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Aug 31, 2023 10:22:51 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH apple
+Aug 31, 2023 10:22:51 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Meaning of apple: ["fruit"," a tech company"]
+Aug 31, 2023 10:25:59 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Aug 31, 2023 10:26:08 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH apple
+Aug 31, 2023 10:26:08 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Meaning of apple: ["fruit"," a tech company"]

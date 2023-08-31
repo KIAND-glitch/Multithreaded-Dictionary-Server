@@ -1,3 +1,8 @@
+/*
+* Kian Dsouza - 1142463
+* Dictionary Client GUI
+* */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -22,16 +27,14 @@ public class DictionaryClientGUI {
 
         inputField = new JTextField(30);
 
-        // Add buttons for different functionalities
         JButton addButton = new JButton("Add");
         JButton updateButton = new JButton("Update");
         JButton deleteButton = new JButton("Delete");
         JButton searchButton = new JButton("Search");
 
-        // Add ActionListener to each button
         addButton.addActionListener(new DictionaryButtonListener("ADD"));
         updateButton.addActionListener(new DictionaryButtonListener("UPDATE"));
-        deleteButton.addActionListener(new DictionaryButtonListener("DELETE"));
+        deleteButton.addActionListener(new DictionaryButtonListener("REMOVE"));
         searchButton.addActionListener(new DictionaryButtonListener("SEARCH"));
 
         JPanel inputPanel = new JPanel();
@@ -45,7 +48,7 @@ public class DictionaryClientGUI {
         frame.add(inputPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
-        startListening();  // Call startListening() to listen for server responses
+        startListening();
     }
 
     private void startListening() {
@@ -80,7 +83,8 @@ public class DictionaryClientGUI {
     }
 
     private void showError(String message) {
-        JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, message, "Error",
+                JOptionPane.ERROR_MESSAGE);
     }
 
 }

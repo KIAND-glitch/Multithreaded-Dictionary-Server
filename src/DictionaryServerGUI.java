@@ -1,3 +1,8 @@
+/*
+ * Kian Dsouza - 1142463
+ * Dictionary Server GUI
+ * */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -23,7 +28,6 @@ public class DictionaryServerGUI {
             public void actionPerformed(ActionEvent e) {
                 // Handle server stopping logic here
                 // For example, you can call a method to stop the server
-                // dictionaryServer.stopServer();
                 logMessage("Server stopped.");
             }
         });

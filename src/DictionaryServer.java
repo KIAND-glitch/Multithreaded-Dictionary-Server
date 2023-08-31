@@ -1,3 +1,8 @@
+/*
+ * Kian Dsouza - 1142463
+ * Dictionary Server
+ * */
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -11,43 +16,49 @@ import java.util.logging.*;
 
 public class DictionaryServer {
 
-    private volatile boolean isRunning = true; // 'volatile' keyword ensures proper visibility in multi-threading
+    private volatile boolean isRunning = true;
     private static DictionaryServerGUI gui;
     private Dictionary dictionary;
 
-    private static final Logger logger = Logger.getLogger(DictionaryServer.class.getName());
+    private static final Logger logger = Logger.getLogger("ServerLog");
+
 
     static {
-        // Configure the logger
-        LogManager.getLogManager().reset(); // Reset the default configuration
-        logger.setLevel(Level.ALL); // Set the desired logging level
+        LogManager.getLogManager().reset();
+        logger.setLevel(Level.ALL);
 
         try {
-            FileHandler fileHandler = new FileHandler("server.log", true); // Create a log file named "server.log"
-            fileHandler.setLevel(Level.ALL); // Set the desired logging level for the file
+            FileHandler fileHandler = new FileHandler("server.log", true);
+            fileHandler.setLevel(Level.ALL);
+            fileHandler.setFormatter(new SimpleFormatter() {
+                @Override
+                public synchronized String format(LogRecord record) {
+                    String encryptedMessage = super.format(record);
+                    String decryptedMessage = CaesarCipher.decrypt(encryptedMessage);
+                    return decryptedMessage;
+                }
+            });
             logger.addHandler(fileHandler);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setLevel(Level.ALL); // Set the desired logging level for console output
+        consoleHandler.setLevel(Level.ALL);
         logger.addHandler(consoleHandler);
     }
+
 
 
     public DictionaryServer(int port, String dictionaryFilePath, DictionaryServerGUI gui) throws IOException {
         this.gui = gui;
 
         File dictionaryFile = new File(dictionaryFilePath);
-        JSONObject json = readJsonFromFile(dictionaryFile);
-        dictionary = new Dictionary(dictionaryFile); // Initialize the dictionary with the File object
-
+        dictionary = new Dictionary(dictionaryFile);
 
         try {
             ServerSocket serverSocket = new ServerSocket(port);
 
-            // Get the local IP address
             String ipAddress = InetAddress.getLocalHost().getHostAddress();
             logger.info("Starting server on IP address: " + ipAddress);
 
@@ -58,7 +69,6 @@ public class DictionaryServer {
                 Socket clientSocket = serverSocket.accept();
                 gui.logMessage("Client connected: " + clientSocket.getInetAddress());
 
-                // Create a new thread to handle the client's requests
                 Thread clientThread = new Thread(new ClientHandler(clientSocket, dictionary));
                 clientThread.start();
             }
@@ -130,7 +140,7 @@ public class DictionaryServer {
             }
         }
 
-        DictionaryServerGUI gui = new DictionaryServerGUI(); // Create the GUI instance
+        DictionaryServerGUI gui = new DictionaryServerGUI();
         new DictionaryServer(port, dictionaryFilePath, gui);
     }
 
@@ -163,20 +173,22 @@ public class DictionaryServer {
                     out.println(response);
 
                     // Log client requests and responses
-                    logger.info("Client: " + clientSocket.getInetAddress() + " - Request: " + request);
-                    logger.info("Client: " + clientSocket.getInetAddress() + " - Response: " + response);
+                    logger.info("Client: " + clientSocket.getInetAddress() + " - Request: " + CaesarCipher.decrypt(request));
+                    logger.info("Client: " + clientSocket.getInetAddress() + " - Response: " + CaesarCipher.decrypt(response));
 
                     // Also send client logs to the GUI
-                    gui.logMessage("Client " + clientSocket.getInetAddress() + ": " + request);
-                    gui.logMessage("Server response to " + clientSocket.getInetAddress() + ": " + response);
+                    gui.logMessage("Client " + clientSocket.getInetAddress() + ": " + CaesarCipher.decrypt(request));
+                    gui.logMessage("Server response to " + clientSocket.getInetAddress() + ": " + CaesarCipher.decrypt(response));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        private synchronized String processRequest(String request) {
-            String[] tokens = request.split(" ", 2);
+        private synchronized String processRequest(String encryptedRequest) {
+            String decryptedRequest = CaesarCipher.decrypt(encryptedRequest);
+
+            String[] tokens = decryptedRequest.split(" ", 2);
             if (tokens.length < 2) {
                 return "Invalid request format.";
             }
@@ -201,7 +213,8 @@ public class DictionaryServer {
                 default:
                     response = "Unknown operation.";
             }
-            return response;
+
+            return CaesarCipher.encrypt(response);
         }
     }
 
