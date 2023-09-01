@@ -17,8 +17,6 @@ public class DictionaryClient {
     private PrintWriter out;
     private BufferedReader in;
 
-    private static int clientCount = 0;
-
     static {
         try {
             FileHandler fileHandler = new FileHandler("client_logs.txt", true);
@@ -26,13 +24,11 @@ public class DictionaryClient {
             SimpleFormatter formatter = new SimpleFormatter();
             fileHandler.setFormatter(formatter);
 
-            clientCount++;
-
             logger.addHandler(fileHandler);
-            logger.info("Client " + clientCount + " has connected.");
+            logger.info("Client has connected.");
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                logger.info("Client " + clientCount + " has disconnected.");
+                logger.info("Client disconnected.");
                 logger.removeHandler(fileHandler);
                 fileHandler.close();
             }));
@@ -96,7 +92,7 @@ public class DictionaryClient {
         out.println(encryptedRequest);
 
         // Log the request
-        logger.info("Client " + clientCount + " sent request: " + request);
+        logger.info("Client request: " + request);
     }
 
     public String receiveResponse() throws IOException {
@@ -104,7 +100,7 @@ public class DictionaryClient {
         String decryptedResponse = CaesarCipher.decrypt(encryptedResponse);
 
         // Log the response
-        logger.info("Client " + clientCount + " received response: " + decryptedResponse);
+        logger.info("Client received response: " + decryptedResponse);
 
         return decryptedResponse;
     }

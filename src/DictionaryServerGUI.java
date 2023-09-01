@@ -26,9 +26,9 @@ public class DictionaryServerGUI {
         stopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Handle server stopping logic here
-                // For example, you can call a method to stop the server
+                server.stopServer();
                 logMessage("Server stopped.");
+                stopButton.setEnabled(false);
             }
         });
 

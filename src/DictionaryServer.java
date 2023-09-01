@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.*;
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class DictionaryServer {
 
     private static final Logger logger = Logger.getLogger("ServerLog");
 
+    private final CustomThreadPool threadPool; // Add this member
 
     static {
         LogManager.getLogManager().reset();
@@ -55,6 +57,7 @@ public class DictionaryServer {
 
         File dictionaryFile = new File(dictionaryFilePath);
         dictionary = new Dictionary(dictionaryFile);
+        threadPool = new CustomThreadPool(5);
 
         try {
             ServerSocket serverSocket = new ServerSocket(port);
@@ -69,8 +72,7 @@ public class DictionaryServer {
                 Socket clientSocket = serverSocket.accept();
                 gui.logMessage("Client connected: " + clientSocket.getInetAddress());
 
-                Thread clientThread = new Thread(new ClientHandler(clientSocket, dictionary));
-                clientThread.start();
+                threadPool.submitTask(new ClientHandler(clientSocket, dictionary));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -157,11 +159,15 @@ public class DictionaryServer {
         private static final Logger logger = Logger.getLogger(ClientHandler.class.getName());
         private final PrintWriter out;
 
+        private CustomThreadPool threadPool;
+
         public ClientHandler(Socket clientSocket, Dictionary dictionary) throws IOException {
             this.clientSocket = clientSocket;
             this.dictionary = dictionary;
             out = new PrintWriter(clientSocket.getOutputStream(), true);
+            this.threadPool = new CustomThreadPool(5);
         }
+
         @Override
         public void run() {
             try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
@@ -169,34 +175,25 @@ public class DictionaryServer {
 
                 String request;
                 while ((request = in.readLine()) != null) {
-                    String response = processRequest(request);
-                    out.println(response);
-
-                    // Log client requests and responses
-                    logger.info("Client: " + clientSocket.getInetAddress() + " - Request: " + CaesarCipher.decrypt(request));
-                    logger.info("Client: " + clientSocket.getInetAddress() + " - Response: " + CaesarCipher.decrypt(response));
-
-                    // Also send client logs to the GUI
-                    gui.logMessage("Client " + clientSocket.getInetAddress() + ": " + CaesarCipher.decrypt(request));
-                    gui.logMessage("Server response to " + clientSocket.getInetAddress() + ": " + CaesarCipher.decrypt(response));
+                    // Submit the task to the custom thread pool for processing
+                    String finalRequest = request;
+                    threadPool.submitTask(() -> processRequest(finalRequest));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
-        private synchronized String processRequest(String encryptedRequest) {
+        private synchronized void processRequest(String encryptedRequest) {
             String decryptedRequest = CaesarCipher.decrypt(encryptedRequest);
-
+            String response;
             String[] tokens = decryptedRequest.split(" ", 2);
             if (tokens.length < 2) {
-                return "Invalid request format.";
+                response =  "Invalid request format.";
             }
 
             String operation = tokens[0];
             String parameter = tokens[1];
 
-            String response;
             switch (operation) {
                 case "SEARCH":
                     response = dictionary.search(parameter);
@@ -214,7 +211,17 @@ public class DictionaryServer {
                     response = "Unknown operation.";
             }
 
-            return CaesarCipher.encrypt(response);
+            // Log client requests and responses (in the main thread)
+            String finalResponse = response;
+            SwingUtilities.invokeLater(() -> {
+                logger.info("Client: " + clientSocket.getInetAddress() + " - Request: " + decryptedRequest);
+                logger.info("Client: " + clientSocket.getInetAddress() + " - Response: " + finalResponse);
+                gui.logMessage("Client " + clientSocket.getInetAddress() + ": " + decryptedRequest);
+                gui.logMessage("Server response to " + clientSocket.getInetAddress() + ": " + finalResponse);
+            });
+
+            // Send the response to the client
+            out.println(CaesarCipher.encrypt(finalResponse));
         }
     }
 

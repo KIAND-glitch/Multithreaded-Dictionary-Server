@@ -52,3 +52,77 @@ Aug 31, 2023 10:26:08 PM DictionaryClient sendRequest
 INFO: Client 1 sent request: SEARCH apple
 Aug 31, 2023 10:26:08 PM DictionaryClient receiveResponse
 INFO: Client 1 received response: Meaning of apple: ["fruit"," a tech company"]
+Sept 01, 2023 7:48:46 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Sept 01, 2023 7:48:56 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH apple
+Sept 01, 2023 7:50:02 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH Kian
+Sept 01, 2023 7:50:16 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: ADD Kian
+Sept 01, 2023 7:55:45 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Sept 01, 2023 7:55:52 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH apple
+Sept 01, 2023 7:55:52 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Jbxkfkd lc xmmib: ["corfq"," x qbze zljmxkv"]
+Sept 01, 2023 7:56:44 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Sept 01, 2023 7:56:52 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH apple
+Sept 01, 2023 7:56:52 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Jbxkfkd lc xmmib: ["corfq"," x qbze zljmxkv"]
+Sept 01, 2023 7:59:48 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Sept 01, 2023 7:59:52 PM DictionaryClient <init>
+WARNING: Could not connect to the server. Please make sure the server is running.
+Sept 01, 2023 8:00:04 PM DictionaryClient <clinit>
+INFO: Client 1 has connected.
+Sept 01, 2023 8:00:26 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: SEARCH apple
+Sept 01, 2023 8:00:26 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Meaning of apple: ["fruit"," a tech company"]
+Sept 01, 2023 8:00:49 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: ADD annie girlfriend
+Sept 01, 2023 8:00:49 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Added annie successfully.
+Sept 01, 2023 8:01:37 PM DictionaryClient sendRequest
+INFO: Client 1 sent request: ADD frog green
+Sept 01, 2023 8:01:37 PM DictionaryClient receiveResponse
+INFO: Client 1 received response: Added frog successfully.
+Sept 01, 2023 9:55:22 PM DictionaryClient <clinit>
+INFO: Client has connected.
+Sept 01, 2023 9:55:30 PM DictionaryClient sendRequest
+INFO: Client request: SEARCH apple
+Sept 01, 2023 9:55:30 PM DictionaryClient receiveResponse
+INFO: Client received response: Meaning of apple: fruit,  a tech company
+Sept 01, 2023 9:57:24 PM DictionaryClient lambda$static$0
+INFO: Client disconnected.
+Sept 01, 2023 9:57:29 PM DictionaryClient <clinit>
+INFO: Client has connected.
+Sept 01, 2023 9:57:33 PM DictionaryClient <init>
+WARNING: Could not connect to the server. Please make sure the server is running.
+Sept 01, 2023 9:57:33 PM DictionaryClient lambda$static$0
+INFO: Client disconnected.
+Sept 01, 2023 9:57:52 PM DictionaryClient <clinit>
+INFO: Client has connected.
+Sept 01, 2023 9:58:02 PM DictionaryClient sendRequest
+INFO: Client request: SEARCH kian
+Sept 01, 2023 9:58:02 PM DictionaryClient receiveResponse
+INFO: Client received response: Meaning of kian: genius
+Sept 01, 2023 9:58:08 PM DictionaryClient lambda$static$0
+INFO: Client disconnected.
+Sept 01, 2023 9:59:09 PM DictionaryClient <clinit>
+INFO: Client has connected.
+Sept 01, 2023 9:59:37 PM DictionaryClient sendRequest
+INFO: Client request: SEARCH Kian
+Sept 01, 2023 9:59:37 PM DictionaryClient receiveResponse
+INFO: Client received response: Meaning of Kian: king
+Sept 01, 2023 10:03:59 PM DictionaryClient <clinit>
+INFO: Client has connected.
+Sept 01, 2023 10:04:09 PM DictionaryClient sendRequest
+INFO: Client request: SEARCH Kian
+Sept 01, 2023 10:04:09 PM DictionaryClient receiveResponse
+INFO: Client received response: Meaning of Kian: king
+Sept 01, 2023 10:04:18 PM DictionaryClient lambda$static$0
+INFO: Client disconnected.

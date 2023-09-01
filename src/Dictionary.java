@@ -17,10 +17,7 @@ public class Dictionary {
 
     private  File dictionaryFile;
 
-//    private static final File dictionaryFile = new File("src/dictionary.json");
-
     public Dictionary(File dictionaryFile) {
-        // Initialize the dictionary by reading from the JSON file
         try {
             this.dictionaryFile = dictionaryFile;
             String fileContent = new String(Files.readAllBytes(dictionaryFile.toPath()));
@@ -34,7 +31,14 @@ public class Dictionary {
     public synchronized String search(String word) {
         if (dictionaryData.has(word)) {
             JSONArray meanings = dictionaryData.getJSONArray(word);
-            return "Meaning of " + word + ": " + meanings.toString();
+            StringBuilder meaningString = new StringBuilder();
+            for (int i = 0; i < meanings.length(); i++) {
+                meaningString.append(meanings.getString(i));
+                if (i < meanings.length() - 1) {
+                    meaningString.append(", "); // Add a comma and space if not the last meaning
+                }
+            }
+            return "Meaning of " + word + ": " + meaningString.toString();
         } else {
             return "Word not found.";
         }
