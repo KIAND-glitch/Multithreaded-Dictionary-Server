@@ -13,8 +13,6 @@ import java.net.*;
 import java.io.IOException;
 import java.util.logging.*;
 
-
-
 public class DictionaryServer {
 
     private volatile boolean isRunning = true;
@@ -23,7 +21,7 @@ public class DictionaryServer {
 
     private static final Logger logger = Logger.getLogger("ServerLog");
 
-    private final CustomThreadPool threadPool; // Add this member
+    private final CustomThreadPool threadPool;
 
     static {
         LogManager.getLogManager().reset();
@@ -52,7 +50,8 @@ public class DictionaryServer {
 
 
 
-    public DictionaryServer(int port, String dictionaryFilePath, DictionaryServerGUI gui) throws IOException {
+    public DictionaryServer(int port, String dictionaryFilePath, DictionaryServerGUI gui)
+            throws IOException {
         this.gui = gui;
 
         File dictionaryFile = new File(dictionaryFilePath);
@@ -97,7 +96,8 @@ public class DictionaryServer {
         File dictionaryFile = new File(dictionaryFilePath);
 
         if (!dictionaryFile.exists()) {
-            System.out.println("Dictionary file does not exist. Do you want to create a new one? (Y/N)");
+            System.out.println("Dictionary file does not exist." +
+                    " Do you want to create a new one? (Y/N)");
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                 String response = reader.readLine().trim().toLowerCase();
@@ -112,7 +112,6 @@ public class DictionaryServer {
                     return;
                 }
 
-                // Initialize an empty JSON dictionary
                 JSONObject initialDictionary = new JSONObject();
                 writeJsonToFile(dictionaryFile, initialDictionary);
             } catch (IOException e) {
@@ -124,7 +123,8 @@ public class DictionaryServer {
             try {
                 JSONObject json = readJsonFromFile(dictionaryFile);
                 if (json == null) {
-                    System.out.println("Invalid JSON format in dictionary file. Do you want to create a new one? (Y/N)");
+                    System.out.println("Invalid JSON format in dictionary file." +
+                            " Do you want to create a new one? (Y/N)");
                     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                     String response = reader.readLine().trim().toLowerCase();
 
@@ -146,12 +146,6 @@ public class DictionaryServer {
         new DictionaryServer(port, dictionaryFilePath, gui);
     }
 
-    public void stopServer() {
-        isRunning = false;
-        gui.logMessage("Server stopping...");
-    }
-
-
     static class ClientHandler implements Runnable {
         private Socket clientSocket;
         private Dictionary dictionary;
@@ -170,12 +164,13 @@ public class DictionaryServer {
 
         @Override
         public void run() {
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+            try (BufferedReader in = new BufferedReader(
+                    new InputStreamReader(clientSocket.getInputStream()))) {
                 logger.info("Client connected: " + clientSocket.getInetAddress());
 
                 String request;
                 while ((request = in.readLine()) != null) {
-                    // Submit the task to the custom thread pool for processing
+
                     String finalRequest = request;
                     threadPool.submitTask(() -> processRequest(finalRequest));
                 }
@@ -187,8 +182,10 @@ public class DictionaryServer {
             String decryptedRequest = CaesarCipher.decrypt(encryptedRequest);
             String response;
             String[] tokens = decryptedRequest.split(" ", 2);
+
             if (tokens.length < 2) {
-                response =  "Invalid request format.";
+                out.println(CaesarCipher.encrypt("Invalid request format."));
+                return;
             }
 
             String operation = tokens[0];
@@ -211,16 +208,18 @@ public class DictionaryServer {
                     response = "Unknown operation.";
             }
 
-            // Log client requests and responses (in the main thread)
             String finalResponse = response;
             SwingUtilities.invokeLater(() -> {
-                logger.info("Client: " + clientSocket.getInetAddress() + " - Request: " + decryptedRequest);
-                logger.info("Client: " + clientSocket.getInetAddress() + " - Response: " + finalResponse);
-                gui.logMessage("Client " + clientSocket.getInetAddress() + ": " + decryptedRequest);
-                gui.logMessage("Server response to " + clientSocket.getInetAddress() + ": " + finalResponse);
+                logger.info("Client: " + clientSocket.getInetAddress() +
+                        " - Request: " + decryptedRequest);
+                logger.info("Client: " + clientSocket.getInetAddress() +
+                        " - Response: " + finalResponse);
+                gui.logMessage("Client " + clientSocket.getInetAddress() +
+                        ": " + decryptedRequest);
+                gui.logMessage("Server response to " + clientSocket.getInetAddress() +
+                        ": " + finalResponse);
             });
 
-            // Send the response to the client
             out.println(CaesarCipher.encrypt(finalResponse));
         }
     }

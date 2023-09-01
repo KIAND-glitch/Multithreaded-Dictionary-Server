@@ -48,7 +48,8 @@ public class DictionaryClient {
             System.exit(1);
         } catch (ConnectException e) {
             showError("Could not connect to the server. Please make sure the server is running.");
-            logger.warning("Could not connect to the server. Please make sure the server is running.");
+            logger.warning("Could not connect to the server." +
+                    " Please make sure the server is running.");
             System.exit(1);
         } catch (IOException e) {
             showError("Error connecting to the server.");

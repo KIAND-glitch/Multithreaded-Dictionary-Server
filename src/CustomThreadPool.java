@@ -1,8 +1,11 @@
+/*
+ * Kian Dsouza - 1142463
+ * Custom Thread Pool
+ * */
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class CustomThreadPool {
     private final int nThreads;
@@ -47,7 +50,6 @@ public class CustomThreadPool {
                 try {
                     task.run();
                 } catch (RuntimeException e) {
-                    // Log or handle exceptions as needed
                 }
             }
         }

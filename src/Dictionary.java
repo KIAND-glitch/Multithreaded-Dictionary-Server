@@ -35,7 +35,7 @@ public class Dictionary {
             for (int i = 0; i < meanings.length(); i++) {
                 meaningString.append(meanings.getString(i));
                 if (i < meanings.length() - 1) {
-                    meaningString.append(", "); // Add a comma and space if not the last meaning
+                    meaningString.append(", ");
                 }
             }
             return "Meaning of " + word + ": " + meaningString.toString();
